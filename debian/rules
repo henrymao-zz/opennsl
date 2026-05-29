@@ -36,6 +36,7 @@ PACKAGE=opennsl-modules
 MA_DIR ?= /usr/share/modass
 KVERSION ?= 7.0.0-1002-sonic
 KERNVERSION ?= 7.0.0-1002
+KV ?= $(KERNVERSION)-sonic
 PKG_NAME ?= opennsl-modules-$(KVERSION)_8.4.0.2_amd64.deb
 
 # load generic variable handling
@@ -88,7 +89,6 @@ build-arch-stamp:
 	dh_testdir
 
 	# create links for sonic kernel
-	KV:=$(KERNVERSION)-sonic
 	cd /; sudo mkdir -p /lib/modules/$(KV)
 	cd /; sudo rm -f /lib/modules/$(KV)/build /lib/modules/$(KV)/source
 	cd /; sudo ln -sf /usr/src/linux-sonic-headers-$(KERNVERSION) /lib/modules/$(KV)/source
