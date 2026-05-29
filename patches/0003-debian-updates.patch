@@ -1,0 +1,83 @@
+--- a/debian/changelog	2026-05-29 09:54:45.160442245 +0800
++++ b/debian/changelog	2026-05-29 10:12:08.043305973 +0800
+@@ -14,7 +14,7 @@
+ 
+   * Update to Broadcom SAI 8.4.0.2
+ 
+- -- Ziting Guo <zitingguo@microsoft.com> Tue, Sep 5 02:25:03 2023 +0000
++ -- Ziting Guo <zitingguo@microsoft.com> Tue, 05 Sep 2023 02:25:03 +0000
+ 
+ opennsl (7.1.0.0) unstable; urgency=medium
+ 
+--- a/debian/control	2026-05-29 09:54:45.161282664 +0800
++++ b/debian/control	2026-05-29 10:12:08.036338702 +0800
+@@ -2,7 +2,7 @@
+ Section: main
+ Priority: extra
+ Maintainer: Guohan Lu <gulv@microsoft.com>
+-Build-Depends: debhelper (>= 8.0.0), bzip2
++Build-Depends: debhelper (>= 8.0.0), bzip2, build-essential
+ Standards-Version: 3.9.3
+ #Vcs-Git: git://git.debian.org/collab-maint/bcmsdk.git
+ #Vcs-Browser: http://git.debian.org/?p=collab-maint/bcmsdk.git;a=summary
+@@ -10,5 +10,5 @@
+ Package: opennsl-modules
+ Architecture: amd64
+ Section: main
+-Depends: linux-image-6.1.0-29-2-amd64-unsigned
++Depends: linux-image-7.0.0-1002-sonic | linux-image-sonic
+ Description: kernel modules for broadcom SAI
+--- a/debian/rules	2026-05-29 09:54:45.161282664 +0800
++++ b/debian/rules	2026-05-29 10:12:08.056266326 +0800
+@@ -34,8 +34,9 @@
+ PACKAGE=opennsl-modules
+ # modifieable for experiments or debugging m-a
+ MA_DIR ?= /usr/share/modass
+-KVERSION ?= 6.1.0-29-2-amd64
+-KERNVERSION ?= 6.1.0-29-2
++KVERSION ?= 7.0.0-1002-sonic
++KERNVERSION ?= 7.0.0-1002
++PKG_NAME ?= opennsl-modules-$(KVERSION)_8.4.0.2_amd64.deb
+ 
+ # load generic variable handling
+ -include $(MA_DIR)/include/generic.make
+@@ -92,11 +93,11 @@
+ 	cd /; sudo rm /lib/modules/$(KERNVERSION)-amd64/source
+ 	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-common/ /lib/modules/$(KERNVERSION)-amd64/source
+ 	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/ /lib/modules/$(KERNVERSION)-amd64/build
+-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-common/include/generated
+-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-common/arch/x86/include/generated
+-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/module.lds /usr/src/linux-headers-$(KERNVERSION)-common/arch/x86/module.lds
+-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/config/ /usr/src/linux-headers-$(KERNVERSION)-common/include/config
+-	cd /; sudo cp /usr/src/linux-headers-$(KERNVERSION)-amd64/Module.symvers /usr/src/linux-headers-$(KERNVERSION)-common/Module.symvers
++	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-sonic/include/generated
++	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-sonic/arch/x86/include/generated
++	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/module.lds /usr/src/linux-headers-$(KERNVERSION)-sonic/arch/x86/module.lds
++	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/config/ /usr/src/linux-headers-$(KERNVERSION)-sonic/include/config
++	cd /; sudo cp /usr/src/linux-headers-$(KERNVERSION)-amd64/Module.symvers /usr/src/linux-headers-$(KERNVERSION)-sonic/Module.symvers
+ 
+ 	# Add here command to compile/build the package.
+ 	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 \
+--- a/debian/opennsl-modules.dirs	2026-05-29 09:54:45.161282664 +0800
++++ b/debian/opennsl-modules.dirs	2026-05-29 10:12:08.038840643 +0800
+@@ -1 +1 @@
+-lib/modules/6.1.0-29-2-amd64/extra
++lib/modules/7.0.0-1002-sonic/extra
+--- a/debian/opennsl-modules.install	2026-05-29 09:54:45.161282664 +0800
++++ b/debian/opennsl-modules.install	2026-05-29 10:12:08.041395206 +0800
+@@ -1,8 +1,8 @@
+-systems/linux/user/x86-smp_generic_64-2_6/linux-bcm-knet.ko lib/modules/6.1.0-29-2-amd64/extra
+-systems/linux/user/x86-smp_generic_64-2_6/linux-kernel-bde.ko lib/modules/6.1.0-29-2-amd64/extra
+-systems/linux/user/x86-smp_generic_64-2_6/linux-user-bde.ko lib/modules/6.1.0-29-2-amd64/extra
+-systems/linux/user/x86-smp_generic_64-2_6/linux-knet-cb.ko lib/modules/6.1.0-29-2-amd64/extra
++systems/linux/user/x86-smp_generic_64-2_6/linux-bcm-knet.ko lib/modules/7.0.0-1002-sonic/extra
++systems/linux/user/x86-smp_generic_64-2_6/linux-kernel-bde.ko lib/modules/7.0.0-1002-sonic/extra
++systems/linux/user/x86-smp_generic_64-2_6/linux-user-bde.ko lib/modules/7.0.0-1002-sonic/extra
++systems/linux/user/x86-smp_generic_64-2_6/linux-knet-cb.ko lib/modules/7.0.0-1002-sonic/extra
+ systemd/opennsl-modules.service lib/systemd/system
+-sdklt/build/bde/linux_ngbde.ko lib/modules/6.1.0-29-2-amd64/extra
+-sdklt/build/knet/linux_ngknet.ko lib/modules/6.1.0-29-2-amd64/extra
+-sdklt/build/knetcb/linux_ngknetcb.ko lib/modules/6.1.0-29-2-amd64/extra
++sdklt/build/bde/linux_ngbde.ko lib/modules/7.0.0-1002-sonic/extra
++sdklt/build/knet/linux_ngknet.ko lib/modules/7.0.0-1002-sonic/extra
++sdklt/build/knetcb/linux_ngknetcb.ko lib/modules/7.0.0-1002-sonic/extra
