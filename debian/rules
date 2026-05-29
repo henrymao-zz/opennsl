@@ -89,10 +89,10 @@ build-arch-stamp:
 	dh_testdir
 
 	# create links for sonic kernel
-	cd /; sudo mkdir -p /lib/modules/$(KV)
-	cd /; sudo rm -f /lib/modules/$(KV)/build /lib/modules/$(KV)/source
-	cd /; sudo ln -sf /usr/src/linux-sonic-headers-$(KERNVERSION) /lib/modules/$(KV)/source
-	cd /; sudo ln -sf /usr/src/linux-headers-$(KV) /lib/modules/$(KV)/build
+	mkdir -p /lib/modules/$(KV)
+	rm -f /lib/modules/$(KV)/build /lib/modules/$(KV)/source
+	ln -sf /usr/src/linux-sonic-headers-$(KERNVERSION) /lib/modules/$(KV)/source
+	ln -sf /usr/src/linux-headers-$(KV) /lib/modules/$(KV)/build
 
 	# Add here command to compile/build the package.
 	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 \
