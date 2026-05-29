@@ -1,0 +1,14 @@
+build/
+.workshop/
+.workshop.lock
+
+*.o
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.o.*
+*.cmd
+.modules.order
+Module.symvers
+.tmp_versions/
