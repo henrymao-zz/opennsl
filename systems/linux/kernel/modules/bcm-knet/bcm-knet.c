@@ -7245,7 +7245,7 @@ bkn_timer(unsigned long context)
 static void
 bkn_timer(struct timer_list *t)
 {
-    bkn_switch_info_t *sinfo = from_timer(sinfo, t, timer);
+    bkn_switch_info_t *sinfo = container_of(t, bkn_switch_info_t, timer);
     return bkn_timer_func(sinfo);
 }
 #endif
@@ -7336,7 +7336,7 @@ bkn_rxtick(unsigned long context)
 static void
 bkn_rxtick(struct timer_list *t)
 {
-    bkn_switch_info_t *sinfo = from_timer(sinfo, t, rxtick);
+    bkn_switch_info_t *sinfo = container_of(t, bkn_switch_info_t, rxtick);
     return bkn_rxtick_func(sinfo);
 }
 #endif
@@ -7521,7 +7521,7 @@ bkn_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *drvinfo)
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0))
 static int
-bkn_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
+bkn_get_ts_info(struct net_device *dev, struct kernel_ethtool_ts_info *info)
 {
     bkn_priv_t *priv;
     bkn_switch_info_t *sinfo;
@@ -10286,8 +10286,8 @@ _cleanup(void)
     list_for_each(list, &_sinfo_list) {
         sinfo = (bkn_switch_info_t *)list;
 
-        del_timer_sync(&sinfo->timer);
-        del_timer_sync(&sinfo->rxtick);
+        timer_delete_sync(&sinfo->timer);
+        timer_delete_sync(&sinfo->rxtick);
 
         cfg_api_lock(sinfo, &flags);
         if (DEV_IS_CMIC(sinfo)) {

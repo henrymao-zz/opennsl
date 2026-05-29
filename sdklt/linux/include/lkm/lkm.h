@@ -1,3 +1,7 @@
+#ifndef strlcpy
+#define strlcpy(d,s,n) strscpy(d,s,n)
+#endif
+
 /*! \file lkm.h
  *
  * Linux compatibility macros.
@@ -118,7 +122,7 @@
 #else
 #define timer_context_t struct timer_list *
 #define timer_arg(var, context, timer_fieldname) \
-    from_timer(var, context, timer_fieldname)
+    container_of(context, typeof(*var), timer_fieldname)
 #endif
 
 #ifndef setup_timer
@@ -138,6 +142,7 @@ static inline void page_ref_dec(struct page *page)
 }
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0)
 #ifndef PCI_IRQ_LEGACY
 /* Emulate new IRQ API if not available */
 #define PCI_IRQ_LEGACY          (1 << 0)
@@ -168,6 +173,14 @@ pci_irq_vector(struct pci_dev *dev, unsigned int nr)
 {
     return dev->irq;
 }
+#endif /* PCI_IRQ_LEGACY */
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0) */
+
+#ifndef MAX_ORDER
+#define MAX_ORDER MAX_PAGE_ORDER
+#endif
+#ifndef PCI_IRQ_LEGACY
+#define PCI_IRQ_LEGACY PCI_IRQ_INTX
 #endif
 
 #endif /* LKM_H */

@@ -3890,7 +3890,7 @@ lkbde_isrtick(unsigned long context)
 static void
 lkbde_isrtick(struct timer_list *t)
 {
-    bde_ctrl_t *ctrl = from_timer(ctrl, t, isr_tick);
+    bde_ctrl_t *ctrl = container_of(t, bde_ctrl_t, isr_tick);
     return lkbde_isrtick_func(ctrl);
 }
 #endif
@@ -4150,7 +4150,7 @@ _interrupt_disconnect(int d)
         if (ctrl->use_msi >= PCI_USE_INT_MSI) {
             _msi_disconnect(ctrl);
             if (ctrl->intr_pending) {
-                del_timer_sync(&ctrl->isr_tick);
+                timer_delete_sync(&ctrl->isr_tick);
             }
         }
 #endif

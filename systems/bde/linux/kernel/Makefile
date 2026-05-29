@@ -120,7 +120,7 @@ module: $(MODULE)
 #
 $(MODULE): $(BLDDIR)/.tree $(BOBJS) kernel_libs
 	mkdir -p $(@D)
-	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) $(LIBS) -o $@
+	$(LD) $(MODULE_LDFLAGS) -r -d -z muldefs $(BOBJS) $(LIBS) -o $@
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)

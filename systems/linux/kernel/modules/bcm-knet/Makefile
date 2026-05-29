@@ -88,7 +88,7 @@ build: $(MODULE) $(KMODULE)
 # here for compatibility.
 #
 $(MODULE): $(BLDDIR)/.tree $(BOBJS) $(LIBS)
-	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) $(LIBS) -o $@
+	$(LD) $(MODULE_LDFLAGS) -r -d -z muldefs $(BOBJS) $(LIBS) -o $@
 
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)

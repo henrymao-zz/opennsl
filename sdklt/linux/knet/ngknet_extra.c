@@ -488,7 +488,7 @@ ngknet_rx_rate_limit_init(struct ngknet_dev *devs)
 void
 ngknet_rx_rate_limit_cleanup(void)
 {
-    del_timer_sync(&rl_ctrl.timer);
+    timer_delete_sync(&rl_ctrl.timer);
 }
 
 int

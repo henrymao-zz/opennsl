@@ -37,13 +37,7 @@ actions:
     echo "==> Preparing build source..."
     rm -rf ${BUILD_SRC}
     mkdir -p ${BUILD_SRC}
-    (cd /project && tar cf - --exclude='.git' --exclude='.workshop*' --exclude='build' --exclude='patches' --exclude='*.lock' .) | (cd ${BUILD_SRC} && tar xf -)
-
-    echo "==> Applying patches..."
-    for p in /project/patches/*.patch; do
-      echo "  Applying $(basename $p)..."
-      (cd ${BUILD_SRC} && patch -p1 -s < "$p")
-    done
+    (cd /project && tar cf - --exclude='.git' --exclude='.workshop*' --exclude='build' --exclude='*.lock' .) | (cd ${BUILD_SRC} && tar xf -)
 
     echo "==> Building legacy kernel modules..."
     cd ${BUILD_SRC}

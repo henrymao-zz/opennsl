@@ -34,8 +34,9 @@ sname:=opennsl
 PACKAGE=opennsl-modules
 # modifieable for experiments or debugging m-a
 MA_DIR ?= /usr/share/modass
-KVERSION ?= 6.1.0-29-2-amd64
-KERNVERSION ?= 6.1.0-29-2
+KVERSION ?= 7.0.0-1002-sonic
+KERNVERSION ?= 7.0.0-1002
+PKG_NAME ?= opennsl-modules-$(KVERSION)_8.4.0.2_amd64.deb
 
 # load generic variable handling
 -include $(MA_DIR)/include/generic.make
@@ -64,11 +65,11 @@ kdist_clean: clean
 	dh_testdir
 	dh_clean
 	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 \
-	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
-	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
+	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-sonic \
+	    KERNEL_SRC=/usr/src/linux-sonic-headers-$(KERNVERSION) \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
 	SDK=$(realpath .) BUILD_KNET_CB=1 \
-	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-sonic \
 	    $(MAKE) -C sdklt/ clean
 #	rm -f driver/*.o driver/*.ko
 #
@@ -86,26 +87,21 @@ build-arch: configure-stamp  build-arch-stamp
 build-arch-stamp:
 	dh_testdir
 
-	# create links
-	cd /; sudo mkdir -p /lib/modules/$(KERNVERSION)-amd64
-	cd /; sudo rm /lib/modules/$(KERNVERSION)-amd64/build
-	cd /; sudo rm /lib/modules/$(KERNVERSION)-amd64/source
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-common/ /lib/modules/$(KERNVERSION)-amd64/source
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/ /lib/modules/$(KERNVERSION)-amd64/build
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-common/include/generated
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/include/generated/ /usr/src/linux-headers-$(KERNVERSION)-common/arch/x86/include/generated
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/arch/x86/module.lds /usr/src/linux-headers-$(KERNVERSION)-common/arch/x86/module.lds
-	cd /; sudo ln -s /usr/src/linux-headers-$(KERNVERSION)-amd64/include/config/ /usr/src/linux-headers-$(KERNVERSION)-common/include/config
-	cd /; sudo cp /usr/src/linux-headers-$(KERNVERSION)-amd64/Module.symvers /usr/src/linux-headers-$(KERNVERSION)-common/Module.symvers
+	# create links for sonic kernel
+	KV:=$(KERNVERSION)-sonic
+	cd /; sudo mkdir -p /lib/modules/$(KV)
+	cd /; sudo rm -f /lib/modules/$(KV)/build /lib/modules/$(KV)/source
+	cd /; sudo ln -sf /usr/src/linux-sonic-headers-$(KERNVERSION) /lib/modules/$(KV)/source
+	cd /; sudo ln -sf /usr/src/linux-headers-$(KV) /lib/modules/$(KV)/build
 
 	# Add here command to compile/build the package.
 	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 \
-	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
-	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
+	    KERNDIR=/usr/src/linux-headers-$(KV) \
+	    KERNEL_SRC=/usr/src/linux-sonic-headers-$(KERNVERSION) \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6
 
 	SDK=$(realpath .) BUILD_KNET_CB=1 \
-	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    KDIR=/usr/src/linux-headers-$(KV) \
 	    $(MAKE) -C sdklt/ kmod
 
 	touch $@
@@ -132,12 +128,12 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 \
-	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
-	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
+	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-sonic \
+	    KERNEL_SRC=/usr/src/linux-sonic-headers-$(KERNVERSION) \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
 
 	SDK=$(realpath .) BUILD_KNET_CB=1 \
-	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-sonic \
 	    $(MAKE) -C sdklt/ clean
 
 	dh_clean

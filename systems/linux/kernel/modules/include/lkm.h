@@ -1,3 +1,7 @@
+#ifndef strlcpy
+#define strlcpy(d,s,n) strscpy(d,s,n)
+#endif
+
 /*
  * $Id: lkm.h,v 1.22 Broadcom SDK $
  * $Copyright: 2017-2024 Broadcom Inc. All rights reserved.
