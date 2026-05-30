@@ -185,9 +185,7 @@ binary-arch: build install
 #	dh_installpam -a
 #	dh_installmime -a
 	dh_installmodules -a
-	dh_systemd_enable -a
-	dh_installinit -a
-	dh_systemd_start -a
+	dh_installsystemd -a
 	dh_installcron -a
 #	dh_installman -a
 	dh_installinfo -a
