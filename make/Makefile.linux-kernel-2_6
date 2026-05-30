@@ -134,7 +134,7 @@ STD_CPPFLAGS = ${STD_CFLAGS}
 STD_CXXFLAGS = ${STD_CFLAGS}
 
 ifndef BCM_CFLAGS
-BCM_CFLAGS   = -Wall -Werror -Wno-error=incompatible-pointer-types
+BCM_CFLAGS   = -Wall -Werror
 endif
 
 BCM_CPPFLAGS = ${BCM_CFLAGS}

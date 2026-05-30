@@ -120,11 +120,8 @@ endif
 
 ifeq (1,$(NO_PRECOMPILED_MODULE))
 # {
-$(PRE_COMPILED_OBJ): FORCE
-	cp -f $(LIBDIR)/$(MODULE) $@
-
-$(KMODULE): $(PRE_COMPILED_OBJ)
-	rm -f *.ko .*.cmd *.sig *.P
+$(KMODULE):
+	rm -f *.o *.ko .*.cmd *.sig *.P
 	rm -fr .tmp_versions
 	if [ ! -f $(KERNBLDDIR)/NO_SUPRESS ]; then echo "# suppress warning" > .$(PRE_COMPILED_OBJ).cmd; fi
 	#
@@ -143,19 +140,14 @@ else
 # Kernels before 2.6.17 do not support external module symbols files,
 # so we create a dummy to prevent build failures.
 #
-$(PRE_COMPILED_OBJ): FORCE
-	cp -f $(LIBDIR)/$(MODULE) $@
-
-$(KMODULE): $(PRE_COMPILED_OBJ)
-	rm -f *.ko .*.cmd
+$(KMODULE):
+	rm -f *.o *.ko .*.cmd
 	rm -fr .tmp_versions
-	cp -f $(LIBDIR)/$(MODULE) $(PRE_COMPILED_OBJ)_shipped
+	ln -s $(LIBDIR)/$(MODULE) $(PRE_COMPILED_OBJ)_shipped
 	if [ ! -f $(KERNBLDDIR)/NO_SUPRESS ]; then echo "# suppress warning" > .$(PRE_COMPILED_OBJ).cmd; fi
-	$(MAKE) -C $(KERNBLDDIR) CROSS_COMPILE=$(CROSS_COMPILE) KBUILD_MODPOST_WARN=1 M=$(PWD) modules
+	$(MAKE) -C $(KERNBLDDIR) CROSS_COMPILE=$(CROSS_COMPILE) M=$(PWD) modules
 	if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
 	cp -f $(KMODULE) $(LIBDIR)
 	rm -f $(PRE_COMPILED_OBJ)_shipped
 # }
 endif
-
-FORCE:

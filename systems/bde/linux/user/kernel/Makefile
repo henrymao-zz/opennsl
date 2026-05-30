@@ -93,7 +93,6 @@ $(KMODULE): $(SRCS_COMPOSING)
 else
 # {
 KBUILD_EXTRA_SYMBOLS := ${BLDDIR}/../../kernel/kernel_module/Module.symvers
-KBUILD_EXTRA_SYMBOLS_ALT := ${BLDDIR}/../../kernel/Module.symvers
 export KBUILD_EXTRA_SYMBOLS
 
 module: $(MODULE)
@@ -103,13 +102,13 @@ module: $(MODULE)
 # here for compatibility.
 #
 $(MODULE): $(BLDDIR)/.tree $(BOBJS) kernel_libs
-	$(LD) $(MODULE_LDFLAGS) -r -d -z muldefs $(BOBJS) $(LIBS) -o $@
+	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) $(LIBS) -o $@
 
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	cp ${SDK}/make/Makefile.linux-kmodule $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
-	@if [ -f $(KBUILD_EXTRA_SYMBOLS_ALT) ]; then cat $(KBUILD_EXTRA_SYMBOLS_ALT) > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers; else cat $(KBUILD_EXTRA_SYMBOLS) > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers; fi
+	cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers
 	MOD_NAME=$(THIS_MOD_NAME) KBUILD_EXTRA_SYMBOLS="${KBUILD_EXTRA_SYMBOLS}"  $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko	
 
 include $(SDK)/make/Make.depend

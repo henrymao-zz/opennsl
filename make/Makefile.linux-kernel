@@ -90,7 +90,7 @@ STD_CFLAGS = $(KFLAGS) $(CFGFLAGS)
 STD_CPPFLAGS = ${STD_CFLAGS}
 STD_CXXFLAGS = ${STD_CFLAGS}
 
-BCM_CFLAGS   = -Wall -Werror -Wno-error=incompatible-pointer-types
+BCM_CFLAGS   = -Wall -Werror
 BCM_CPPFLAGS = ${BCM_CFLAGS}
 BCM_CXXFLAGS = ${BCM_CFLAGS}
 
