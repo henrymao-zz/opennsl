@@ -1,3 +1,20 @@
+opennsl (8.4.0.3-0ubuntu5) resolute; urgency=medium
+
+  * Fix 0003-hardened-usercopy-heap-alloc.patch compilation errors
+  * Restore &io-> address-of operators for output parameters (lkbde_get_dev_resource,
+    lkbde_dev_state_get, lkbde_get_dev_pci_info, lkbde_get_sram_dma_info, pci_bus_features)
+  * Fix premature out: label placement in ngknet_ioctl
+  * Remove extra closing brace in linux-user-bde _ioctl
+
+ -- Henry Mao <henry.mao@canonical.com> Sat, 30 May 2026 21:00:00 +0800
+
+opennsl (8.4.0.3-0ubuntu4) resolute; urgency=medium
+
+  * Fix CONFIG_HARDENED_USERCOPY kernel BUG by heap-allocating ioctl buffers
+  * Affects: bcm-knet, linux-user-bde, ngbde, ngknet modules
+
+ -- Henry Mao <henry.mao@canonical.com> Sat, 30 May 2026 14:00:00 +0800
+
 opennsl (8.4.0.3-0ubuntu3) resolute; urgency=medium
 
   * Add linux-user-bde device node creation/removal in opennsl-modules.init
