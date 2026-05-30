@@ -1,4 +1,4 @@
-opennsl (8.4.0.2-0ubuntu4) resolute; urgency=medium
+opennsl (8.4.0.2-0ubuntu5) resolute; urgency=medium
 
   * Fix debian/rules KV variable assignment
   * PPA build for Ubuntu 26.04 (resolute)
