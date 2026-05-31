@@ -1,4 +1,4 @@
-opennsl (8.4.0.3-0ubuntu6) resolute; urgency=medium
+opennsl (8.4.0.3-0ubuntu7) resolute; urgency=medium
 
   * Extend hardened-usercopy heap-alloc fix to all proc_write functions
     in bcm-knet.c (bkn_proc_link_write, bkn_proc_rate_write,
