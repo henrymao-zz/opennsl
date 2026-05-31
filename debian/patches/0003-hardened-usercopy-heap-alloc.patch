@@ -1,5 +1,5 @@
---- a/sdklt/linux/bde/ngbde_ioctl.c
-+++ b/sdklt/linux/bde/ngbde_ioctl.c
+--- a/sdklt/linux/bde/ngbde_ioctl.c	2026-05-31 08:40:13.743446859 +0800
++++ b/sdklt/linux/bde/ngbde_ioctl.c	2026-05-31 08:40:58.089482649 +0800
 @@ -27,7 +27,7 @@
  long
  ngbde_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -9,7 +9,7 @@
      struct ngbde_dev_s *swdev;
      struct ngbde_irq_reg_s ireg;
      struct ngbde_intr_ack_reg_s ackreg;
-@@ -37,236 +37,246 @@ ngbde_ioctl(struct file *file, unsigned
+@@ -37,236 +37,246 @@
      unsigned int irq_num, intr_cmd;
      int rv;
      uint32_t mreg, mval;
@@ -340,8 +340,8 @@
 +    kfree(ioc);
 +    return ret;
  }
---- a/sdklt/linux/knet/ngknet_main.c
-+++ b/sdklt/linux/knet/ngknet_main.c
+--- a/sdklt/linux/knet/ngknet_main.c	2026-05-31 08:40:13.744151398 +0800
++++ b/sdklt/linux/knet/ngknet_main.c	2026-05-31 08:40:58.089977916 +0800
 @@ -1552,8 +1552,9 @@
  ngknet_do_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
  {
@@ -1034,8 +1034,8 @@
  }
  
  static int
---- a/systems/bde/linux/user/kernel/linux-user-bde.c
-+++ b/systems/bde/linux/user/kernel/linux-user-bde.c
+--- a/systems/bde/linux/user/kernel/linux-user-bde.c	2026-05-31 08:40:13.744859168 +0800
++++ b/systems/bde/linux/user/kernel/linux-user-bde.c	2026-05-31 08:40:58.090240824 +0800
 @@ -1767,80 +1767,91 @@
  static int
  _ioctl(unsigned int cmd, unsigned long arg)
@@ -1635,8 +1635,8 @@
  }
  
  /* Workaround for broken Busybox/PPC insmod */
---- a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
-+++ b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
+--- a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c	2026-05-31 08:40:13.742587284 +0800
++++ b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c	2026-05-31 08:41:05.404067905 +0800
 @@ -6317,7 +6317,8 @@
  {
      bkn_priv_t *priv;
@@ -1755,7 +1755,317 @@
  }
  #endif
  
-@@ -10549,64 +10575,85 @@
+@@ -7756,16 +7782,23 @@
+     bkn_priv_t *priv;
+     bkn_switch_info_t *sinfo;
+     unsigned long flags;
+-    char link_str[40];
++    char *link_str = NULL;
+     char *ptr;
+     char *newline;
++    int ret = 0;
+ 
+-    if (count > sizeof(link_str)) {
+-        count = sizeof(link_str) - 1;
+-        link_str[count] = '\0';
++    link_str = kmalloc(40, GFP_KERNEL);
++    if (!link_str) {
++        return -ENOMEM;
+     }
++
++    if (count >= 40) {
++        count = 39;
++    }
++    link_str[count] = '\0';
+     if (copy_from_user(link_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+     link_str[count] = 0;
+     newline = strchr(link_str, '\n');
+@@ -7777,7 +7810,8 @@
+     if ((ptr = strchr(link_str, '=')) == NULL &&
+         (ptr = strchr(link_str, ':')) == NULL) {
+         gprintk("Error: link syntax not recognized: '%s'\n", link_str);
+-        return count;
++        ret = count;
++        goto out;
+     }
+     *ptr++ = 0;
+ 
+@@ -7803,14 +7837,18 @@
+                 gprintk("Warning: unknown link state setting: '%s'\n", ptr);
+             }
+             spin_unlock_irqrestore(&sinfo->lock, flags);
+-            return count;
++            ret = count;
++            goto out;
+         }
+         spin_unlock_irqrestore(&sinfo->lock, flags);
+     }
+ 
+     gprintk("Warning: unknown network interface: '%s'\n", link_str);
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(link_str);
++    return ret;
+ }
+ 
+ struct proc_ops bkn_proc_link_file_ops = {
+@@ -7881,23 +7919,31 @@
+                     size_t count, loff_t *loff)
+ {
+     bkn_switch_info_t *sinfo;
+-    char rate_str[80];
++    char *rate_str = NULL;
+     char *ptr;
+     int unit, chan;
++    int ret = 0;
+ 
+-    if (count > sizeof(rate_str)) {
+-        count = sizeof(rate_str) - 1;
+-        rate_str[count] = '\0';
++    rate_str = kmalloc(80, GFP_KERNEL);
++    if (!rate_str) {
++        return -ENOMEM;
++    }
++
++    if (count >= 80) {
++        count = 79;
+     }
++    rate_str[count] = '\0';
+     if (copy_from_user(rate_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+ 
+     unit = simple_strtol(rate_str, NULL, 10);
+     sinfo = bkn_sinfo_from_unit(unit);
+     if (sinfo == NULL) {
+         gprintk("Warning: unknown unit: %d\n", unit);
+-        return count;
++        ret = count;
++        goto out;
+     }
+ 
+     if ((ptr = strstr(rate_str, "rx_rate=")) != NULL) {
+@@ -7919,8 +7965,11 @@
+     } else {
+         gprintk("Warning: unknown configuration setting\n");
+     }
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(rate_str);
++    return ret;
+ }
+ 
+ struct proc_ops bkn_proc_rate_file_ops = {
+@@ -8198,23 +8247,31 @@
+                      size_t count, loff_t *loff)
+ {
+     bkn_switch_info_t *sinfo;
+-    char debug_str[40];
++    char *debug_str = NULL;
+     char *ptr;
+     int unit;
++    int ret = 0;
++
++    debug_str = kmalloc(40, GFP_KERNEL);
++    if (!debug_str) {
++        return -ENOMEM;
++    }
+ 
+-    if (count > sizeof(debug_str)) {
+-        count = sizeof(debug_str) - 1;
+-        debug_str[count] = '\0';
++    if (count >= 40) {
++        count = 39;
+     }
++    debug_str[count] = '\0';
+     if (copy_from_user(debug_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+ 
+     unit = simple_strtol(debug_str, NULL, 10);
+     sinfo = bkn_sinfo_from_unit(unit);
+     if (sinfo == NULL) {
+         gprintk("Warning: unknown unit: %d\n", unit);
+-        return count;
++        ret = count;
++        goto out;
+     }
+ 
+     if ((ptr = strstr(debug_str, "debug=")) != NULL) {
+@@ -8223,8 +8280,11 @@
+     } else {
+         gprintk("Warning: unknown configuration setting\n");
+     }
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(debug_str);
++    return ret;
+ }
+ 
+ /*
+@@ -8392,25 +8452,33 @@
+     bkn_switch_info_t *sinfo;
+     struct list_head *flist;
+     bkn_filter_t *filter;
+-    char debug_str[40];
++    char *debug_str = NULL;
+     char *ptr;
+     int unit;
+     int clear_mask;
+     int chan;
++    int ret = 0;
+ 
+-    if (count > sizeof(debug_str)) {
+-        count = sizeof(debug_str) - 1;
+-        debug_str[count] = '\0';
++    debug_str = kmalloc(40, GFP_KERNEL);
++    if (!debug_str) {
++        return -ENOMEM;
+     }
++
++    if (count >= 40) {
++        count = 39;
++    }
++    debug_str[count] = '\0';
+     if (copy_from_user(debug_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+ 
+     unit = simple_strtol(debug_str, NULL, 10);
+     sinfo = bkn_sinfo_from_unit(unit);
+     if (sinfo == NULL) {
+         gprintk("Warning: unknown unit: %d\n", unit);
+-        return count;
++        ret = count;
++        goto out;
+     }
+ 
+     clear_mask = 0;
+@@ -8438,8 +8506,11 @@
+             filter->hits = 0;
+         }
+     }
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(debug_str);
++    return ret;
+ }
+ 
+ struct proc_ops bkn_proc_stats_file_ops = {
+@@ -8547,25 +8618,33 @@
+                       size_t count, loff_t *loff)
+ {
+     bkn_switch_info_t *sinfo;
+-    char debug_str[40];
++    char *debug_str = NULL;
+     char *ptr;
+     int unit;
+     int clear_mask;
+     int chan;
++    int ret = 0;
++
++    debug_str = kmalloc(40, GFP_KERNEL);
++    if (!debug_str) {
++        return -ENOMEM;
++    }
+ 
+-    if (count > sizeof(debug_str)) {
+-        count = sizeof(debug_str) - 1;
+-        debug_str[count] = '\0';
++    if (count >= 40) {
++        count = 39;
+     }
++    debug_str[count] = '\0';
+     if (copy_from_user(debug_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+ 
+     unit = simple_strtol(debug_str, NULL, 10);
+     sinfo = bkn_sinfo_from_unit(unit);
+     if (sinfo == NULL) {
+         gprintk("Warning: unknown unit: %d\n", unit);
+-        return count;
++        ret = count;
++        goto out;
+     }
+ 
+     clear_mask = 0;
+@@ -8618,8 +8697,11 @@
+             sinfo->rx[chan].sync_maxloop = 0;
+         }
+     }
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(debug_str);
++    return ret;
+ }
+ 
+ struct proc_ops bkn_proc_dstats_file_ops = {
+@@ -8692,16 +8774,23 @@
+     bkn_switch_info_t *sinfo;
+     bkn_priv_t *priv;
+     struct net_device *dev;
+-    char debug_str[40];
++    char *debug_str = NULL;
+     char *ptr;
+     int clear_mask;
++    int ret = 0;
+ 
+-    if (count > sizeof(debug_str)) {
+-        count = sizeof(debug_str) - 1;
+-        debug_str[count] = '\0';
++    debug_str = kmalloc(40, GFP_KERNEL);
++    if (!debug_str) {
++        return -ENOMEM;
+     }
++
++    if (count >= 40) {
++        count = 39;
++    }
++    debug_str[count] = '\0';
+     if (copy_from_user(debug_str, buf, count)) {
+-        return -EFAULT;
++        ret = -EFAULT;
++        goto out;
+     }
+ 
+     clear_mask = 0;
+@@ -8726,8 +8815,11 @@
+ 
+         }
+     }
++    ret = count;
+ 
+-    return count;
++out:
++    kfree(debug_str);
++    return ret;
+ }
+ 
+ struct proc_ops bkn_proc_ptp_stats_file_ops = {
+@@ -10549,64 +10641,85 @@
  static int
  _ioctl(unsigned int cmd, unsigned long arg)
  {
@@ -1787,14 +2097,14 @@
 +    if (copy_from_user(io, (void*)arg, sizeof(*io))) {
 +        ret = -EFAULT;
 +        goto out;
-     }
- 
--    io.rc = 0;
++    }
++
 +    if (io->len > sizeof(*kmsg)) {
 +        ret = -EINVAL;
 +        goto out;
-+    }
-+
+     }
+ 
+-    io.rc = 0;
 +    io->rc = 0;
  
      switch(cmd) {

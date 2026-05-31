@@ -1,12 +1,12 @@
 opennsl (8.4.0.3-0ubuntu6) resolute; urgency=medium
 
-  * Fix KNET version check failure by adding KCOM/NGKNET limit defines to
-    ccflags-y in Makefile.linux-kmodule (legacy modules were not receiving
-    -DKCOM_FILTER_MAX=1025 -DKCOM_NETIF_MAX=1056 from Make.config CFLAGS
-    because Makefile.linux-kmodule clears CFLAGS and only propagates CFGFLAGS)
-  * Add NGKNET limit defines to ccflags-y for consistency across all modules
+  * Extend hardened-usercopy heap-alloc fix to all proc_write functions
+    in bcm-knet.c (bkn_proc_link_write, bkn_proc_rate_write,
+    bkn_proc_debug_write, bkn_proc_stats_write, bkn_proc_dstats_write,
+    bkn_proc_ptp_stats_write) — fixes Kernel memory overwrite BUG
+    during /proc write operations
 
- -- Henry Mao <henry.mao@canonical.com> Sat, 30 May 2026 21:30:00 +0800
+ -- Henry Mao <henry.mao@canonical.com> Sat, 31 May 2026 08:45:00 +0800
 
 opennsl (8.4.0.3-0ubuntu5) resolute; urgency=medium
 
